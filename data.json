@@ -1,0 +1,45 @@
+{
+ "name": "graph1",
+ "children": [
+  {
+   "name": "Dedicated Conservation",
+   "value": 176,
+   "children": [
+     {
+       "name": "Global protected areas",
+       "value": 149
+     }, {
+       "name": "Coastal ecosystems",
+       "value": 27
+     }
+   ]
+  },
+  {
+   "name": "Mainstreaming Biodiversity",
+   "value": 547,
+   "children": [
+       {
+           "name": "Sustainable croplands",
+           "value": 315
+       }, {
+           "name": "Sustainable rangelands",
+           "value": 81
+       }, {
+           "name": "Biodiversity in urban environments",
+           "value": 73
+       }, {
+           "name": "Invasive species management",
+           "value": 36
+       }, {
+           "name": "Sustainable fisheries",
+           "value": 23
+       }, {
+           "name": "Sustainable forestry",
+           "value": 19
+       }
+
+   ]
+  }
+  ]
+}
+
