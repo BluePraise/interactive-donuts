@@ -1,23 +1,28 @@
 <!DOCTYPE html>
 <head>
-    <title>Test</title>
-    <link rel="stylesheet" type="text/css" href="./style.css">
-</head>
-<!DOCTYPE html>
-<head>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <style src="./style.css"></style>
-    <title>Experiment Graph 1</title>
-</head>
+  <meta charset="utf-8">
+  <title>Sunburst Graph 1</title>
+  <link rel="stylesheet" href="sunburst.css">
+  <script src="https://d3js.org/d3.v5.min.js"></script>
 <body>
-    
-    <div class="container">
-        <svg></svg>
-        <div class="toggle">
-            <label><input class="sizeSelect" type="radio" name="mode" value="upperlimit" checked /> Upper Limit</label>
-            <label><input class="sizeSelect"  type="radio" name="mode" value="lowerlimit" /> Lower Limit</label>
-        </div>
+  <div class="svg-container">
+    <div class="svg-controls">
+      
+      <div class="valuefield-radio">
+        <input onchange="onValueFieldChange('lower')" type="radio" checked id="lower" name="valuefield" value="lower">
+        <label for="lower">Lower</label><br>
+        <input onchange="onValueFieldChange('upper')" type="radio" id="upper" name="valuefield" value="upper">
+        <label for="upper">Upper</label><br>
+      </div>
     </div>
-</body>
+    <div id="partitionSVG" class="svg-chart-container">
+    </div>
 
-<script src="./graph-2.js"></script>
+  </div>
+  <div class="tooltip">
+    
+  </div>
+
+
+  <script src="sunburst.js"></script>
+</body>

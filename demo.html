@@ -19,8 +19,8 @@ body {
 <script>
 
     // Variables
-    var width = 500;
-    var height = 500;
+    var width = 900;
+    var height = 900;
     var radius = Math.min(width, height) / 2;
     var color = d3.scaleOrdinal(d3.schemeCategory20b);
     var sizeIndicator = "size";
@@ -40,18 +40,19 @@ body {
 
 
     // Get the data from our JSON file
-    d3.json("data.json", function(error, nodeData) {
+    d3.json("demo.json", function(error, nodeData) {
         if (error) throw error;
 
 
         // Find the root node, calculate the node.value, and sort our nodes by node.value
         var root = d3.hierarchy(nodeData)
-            .sum(function (d) { return d.size; })
-            .sort(function(a, b) { return b.value - a.value; });
-
+                .sum(function (d) { return d.size; })
+                .sort(function(a, b) { return b.value - a.value; })
+        
 
         // Calculate the size of each arc; save the initial angles for tweening.
         partition(root);
+
         arc = d3.arc()
             .startAngle(function (d) { d.x0s = d.x0; return d.x0; })
             .endAngle(function (d) { d.x1s = d.x1; return d.x1; })
@@ -78,7 +79,7 @@ body {
                 return "translate(" + arc.centroid(d) + ")rotate(" + computeTextRotation(d) + ")"; })
             .attr("dx", "-20")
             .attr("dy", ".5em")
-            .text(function(d) { return d.parent ? d.data.name : "" });
+            .text(function(d) { return d.parent? d.data.name : "" });
 
 
         // Redraw the Sunburst Based on User Input
