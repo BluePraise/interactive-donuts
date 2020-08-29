@@ -1,28 +1,29 @@
 <!DOCTYPE html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Sunburst Graph 1</title>
-  <link rel="stylesheet" href="sunburst.css">
+  <link rel="stylesheet" href="sunburst.css" />
   <script src="https://d3js.org/d3.v5.min.js"></script>
-<body>
-  <div class="svg-container">
-    <div class="svg-controls">
-      
-      <div class="valuefield-radio">
-        <input onchange="onValueFieldChange('lower')" type="radio" checked id="lower" name="valuefield" value="lower">
-        <label for="lower">Lower</label><br>
-        <input onchange="onValueFieldChange('upper')" type="radio" id="upper" name="valuefield" value="upper">
-        <label for="upper">Upper</label><br>
+  <body>
+    <div class="svg-container">
+      <div class="svg-controls">
+        <div class="valuefield-radio">
+          <input
+            type="radio"
+            checked
+            id="lower"
+            name="valuefield"
+            value="lower"
+          />
+          <label for="lower">Lower</label><br />
+          <input type="radio" id="upper" name="valuefield" value="upper" />
+          <label for="upper">Upper</label><br />
+        </div>
       </div>
+      <div id="partitionSVG" class="svg-chart-container"></div>
     </div>
-    <div id="partitionSVG" class="svg-chart-container">
-    </div>
+    <div class="tooltip"></div>
 
-  </div>
-  <div class="tooltip">
-    
-  </div>
-
-
-  <script src="sunburst.js"></script>
-</body>
+    <script src="sunburst.js"></script>
+  </body>
+</head>

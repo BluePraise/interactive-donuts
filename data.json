@@ -1,45 +1,65 @@
 {
- "name": "graph1",
- "children": [
-  {
-   "name": "Dedicated Conservation",
-   "value": 176,
-   "children": [
-     {
-       "name": "Global protected areas",
-       "value": 149
-     }, {
-       "name": "Coastal ecosystems",
-       "value": 27
-     }
-   ]
-  },
-  {
-   "name": "Mainstreaming Biodiversity",
-   "value": 547,
-   "children": [
-       {
-           "name": "Sustainable croplands",
-           "value": 315
-       }, {
-           "name": "Sustainable rangelands",
-           "value": 81
-       }, {
-           "name": "Biodiversity in urban environments",
-           "value": 73
-       }, {
-           "name": "Invasive species management",
-           "value": 36
-       }, {
-           "name": "Sustainable fisheries",
-           "value": 23
-       }, {
-           "name": "Sustainable forestry",
-           "value": 19
-       }
-
-   ]
-  }
+  "name": "graph-1",
+  "children": [
+    {
+      "name": "Dedicated Conservation",
+      "classname": "dedicated",
+      "children": [
+        {
+          "name": "Global protected areas",
+          "lower": 149,
+          "upper": 192,
+          "classname": "dedicated"
+        },
+        {
+          "name": "Coastal ecosystems",
+          "lower": 27,
+          "upper": 37,
+          "classname": "dedicated"
+        }
+      ]
+    },
+    {
+      "name": "Mainstreaming Biodiversity",
+      "classname": "mainstreaming",
+      "children": [
+        {
+          "name": "Sustainable croplands",
+          "lower": 315,
+          "upper": 420,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Sustainable rangelands",
+          "lower": 81,
+          "upper": 81,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Biodiversity in urban environments",
+          "lower": 73,
+          "upper": 73,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Invasive species management",
+          "lower": 36,
+          "upper": 84,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Sustainable fisheries",
+          "lower": 23,
+          "upper": 47,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Sustainable forestry",
+          "lower": 19,
+          "upper": 32,
+          "classname": "mainstreaming"
+        }
+      ]
+    }
   ]
 }
-
