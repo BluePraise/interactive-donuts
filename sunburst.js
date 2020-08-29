@@ -1,39 +1,31 @@
-const drawDiagram = (valuefield, data) => {
+const drawDiagram = (valueField, data, cb) => {
   d3.select("#svg-component").remove();
   const tooltip = d3.select(".tooltip").style("opacity", 0);
   const format = d3.format(",d");
   const width = 600;
   const radius = width / 6;
-  const valueField = valuefield;
   const arc = d3
     .arc()
-    .startAngle((d) => {
-      d.x0s = d.x0;
-      return d.x0;
-    })
-    .endAngle((d) => {
-      d.x1s = d.x1;
-      return d.x1;
-    })
+    .startAngle((d) => d.x0)
+    .endAngle((d) => d.x1)
     .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
     .padRadius(radius * 1.5)
     .innerRadius((d) => d.y0 * radius)
     .outerRadius((d) => Math.max(d.y0 * radius, d.y1 * radius - 1));
 
-  const partition = (data, val) => {
-    const root = d3
-      .hierarchy(data)
-      .sum((d) => {
-        return d[val];
-      })
-      .sort((a, b) => b.value - a.value);
-    return d3.partition().size([2 * Math.PI, root.height + 1])(root);
-  };
+  const hierarchy = d3
+    .hierarchy(data)
+    .sum((d) => {
+      return d[valueField];
+    })
+    .sort((a, b) => b.value - a.value);
 
-  const root = partition(data, valueField);
+  const partition = d3.partition().size([2 * Math.PI, hierarchy.height + 1]);
+
+  partition(hierarchy);
   const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
 
-  root.each((d) => (d.current = d));
+  hierarchy.each((d) => (d.current = d));
 
   const svg = d3
     .select("#partitionSVG")
@@ -49,7 +41,7 @@ const drawDiagram = (valuefield, data) => {
   const path = g
     .append("g")
     .selectAll("path")
-    .data(root.descendants().slice(1))
+    .data(hierarchy.descendants().slice(1))
     .join("path")
     .attr("fill", (d) => {
       while (d.depth > 1) d = d.parent;
@@ -58,7 +50,7 @@ const drawDiagram = (valuefield, data) => {
     .attr("fill-opacity", (d) =>
       arcVisible(d.current) ? (d.children ? 1 : 0) : 0
     )
-    .attr("d", (d) => arc(d.current));
+    .attr("d", arc);
 
   path
     .filter((d) => d.children)
@@ -67,8 +59,13 @@ const drawDiagram = (valuefield, data) => {
 
   path
     .on("mouseover", function (d) {
-      tooltip.transition().duration(200).style("opacity", 1);
       tooltip
+        .filter((d) => +this.getAttribute("fill-opacity"))
+        .transition()
+        .duration(200)
+        .style("opacity", 1);
+      tooltip
+        .filter((d) => +this.getAttribute("fill-opacity"))
         .html(`<p>${d.data.name}</p>`)
         .style("left", d3.event.pageX - 10 + "px")
         .style("top", d3.event.pageY + "px");
@@ -85,7 +82,6 @@ const drawDiagram = (valuefield, data) => {
         tooltip.classed(d.data.classname, true);
       }
     })
-
     .on("mouseout", function (d) {
       tooltip.transition().duration(500).style("opacity", 0);
     });
@@ -96,7 +92,7 @@ const drawDiagram = (valuefield, data) => {
     .attr("text-anchor", "middle")
     .style("user-select", "none")
     .selectAll("text")
-    .data(root.descendants().slice(1))
+    .data(hierarchy.descendants().slice(1))
     .join("text")
     .attr("class", function (d) {
       return d.data.classname;
@@ -110,16 +106,16 @@ const drawDiagram = (valuefield, data) => {
 
   const parent = g
     .append("circle")
-    .datum(root)
+    .datum(hierarchy)
     .attr("r", radius)
     .attr("fill", "none")
     .attr("pointer-events", "all")
     .on("click", clicked);
 
   function clicked(p) {
-    parent.datum(p.parent || root);
+    parent.datum(p.parent || hierarchy);
 
-    root.each(
+    hierarchy.each(
       (d) =>
         (d.target = {
           x0:
@@ -144,7 +140,9 @@ const drawDiagram = (valuefield, data) => {
       .transition(t)
       .tween("data", (d) => {
         const i = d3.interpolate(d.current, d.target);
-        return (t) => (d.current = i(t));
+        return (t) => {
+          d.current = i(t);
+        };
       })
       .filter(function (d) {
         return +this.getAttribute("fill-opacity") || arcVisible(d.target);
@@ -164,36 +162,30 @@ const drawDiagram = (valuefield, data) => {
   }
 
   d3.selectAll("input[name='valuefield']").on("click", function (d, i) {
-    root.each(
-      (d) =>
-        (d.target = {
-          x0:
-            Math.max(0, Math.min(1, (d.x0 - d.x0s) / (d.x1 - d.x0))) *
-            2 *
-            Math.PI,
-          x1:
-            Math.max(0, Math.min(1, (d.x1 - d.x0) / (d.x1 - d.x0))) *
-            2 *
-            Math.PI,
-          y0: Math.max(0, d.y0 - d.depth),
-          y1: Math.max(0, d.y1 - d.depth),
-        })
-    );
-    // console.log(root.sum((d) => d[this.value]));
-    // path.transition().duration(750).attrTween("d", arcTweenPath);
-    // label.transition().duration(750).attrTween("transform", arcTweenText);
+    hierarchy.sum((d) => d[this.value]);
+    // drawDiagram(this.value, data);
+    partition(hierarchy);
+
+    path.transition().duration(750).attr("d", arc);
+
+    label
+      .transition()
+      .duration(750)
+      .text((d) => d.value)
+      .attr("transform", (d) => labelTransform(d.current));
   });
 
   function arcTweenPath(a, i) {
-    var oi = d3.interpolate({ x0: a.x0s, x1: a.x1s }, a); // <-- 1
+    var oi = d3.interpolate({ x0: a.x0 + 0.1, x1: a.x1 + 0.1 }, a);
+
     function tween(t) {
       var b = oi(t);
-      a.x0s = b.x0;
-      a.x1s = b.x1;
+      a.x0 = b.x0;
+      a.x1 = b.x1;
       return arc(b);
     }
 
-    return tween; // <-- 6
+    return tween;
   }
 
   function arcTweenText(a, i) {
