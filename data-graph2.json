@@ -1,0 +1,62 @@
+{
+  "name": "graph-2", 
+  "children": [
+      {
+        "name": "Biodiversity offsets",
+        "current lower": 6,
+        "current upper": 9,
+        "future lower": 162,
+        "future upper": 168
+      },
+      {
+        "name": "Domestic budgets and tax policy",
+        "current lower": 75,
+        "current upper": 78,
+        "future lower": 103,
+        "future upper": 155
+      },
+      {
+        "name": "Natural infrastructure",
+        "current lower": 27,
+        "current upper": 27,
+        "future lower": 105,
+        "future upper": 139
+      },
+      {
+        "name": "Green financial products",
+        "current lower": 4,
+        "current upper": 6,
+        "future lower": 31,
+        "future upper": 93
+      },  
+      {
+        "name": "Nature-based solutions and Carbon markets",
+        "current lower": 1,
+        "current upper": 1,
+        "future lower": 25,
+        "future upper": 40
+        
+      },
+      {
+        "name": "Official Development Assistance (ODA)",
+        "current lower": 4,
+        "current upper": 10,
+        "future lower": 8,
+        "future upper": 19
+      },
+      {
+        "name": "Sustainable supply chains",
+        "current lower": 5,
+        "current upper": 8,
+        "future lower": 12,
+        "future upper": 19
+      },
+      {
+        "name": "Philanthropy and conservation NGOs",
+        "current lower": 2,
+        "current upper": 3,
+        "future lower": 3,
+        "future upper": 8
+      }
+  ]
+}
