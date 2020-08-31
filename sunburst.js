@@ -6,14 +6,8 @@ const drawDiagram = (valueField, data, cb) => {
   const radius = width / 6;
   const arc = d3
     .arc()
-    .startAngle((d) => {
-      d.x0s = d.x0;
-      return d.x0;
-    })
-    .endAngle((d) => {
-      d.x1s = d.x1;
-      return d.x1;
-    })
+    .startAngle((d) => d.x0)
+    .endAngle((d) => d.x1)
     .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
     .padRadius(radius * 1.5)
     .innerRadius((d) => d.y0 * radius)
@@ -28,7 +22,7 @@ const drawDiagram = (valueField, data, cb) => {
 
   const partition = d3.partition().size([2 * Math.PI, hierarchy.height + 1]);
 
-  partition(hierarchy);
+  const root = partition(hierarchy);
   const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
 
   hierarchy.each((d) => (d.current = d));
@@ -47,7 +41,7 @@ const drawDiagram = (valueField, data, cb) => {
   const path = g
     .append("g")
     .selectAll("path")
-    .data(hierarchy.descendants().slice(1))
+    .data(root.descendants().slice(1))
     .join("path")
     .attr("fill", (d) => {
       while (d.depth > 1) d = d.parent;
@@ -128,7 +122,7 @@ const drawDiagram = (valueField, data, cb) => {
     .attr("text-anchor", "middle")
     .style("user-select", "none")
     .selectAll("text")
-    .data(hierarchy.descendants().slice(1))
+    .data(root.descendants().slice(1))
     .join("text")
     .attr("class", function (d) {
       return d.data.classname;
@@ -142,30 +136,25 @@ const drawDiagram = (valueField, data, cb) => {
 
   const parent = g
     .append("circle")
-    .datum(hierarchy)
+    .datum(root)
     .attr("r", radius)
     .attr("fill", "none")
     .attr("pointer-events", "all")
     .on("click", clicked);
 
   function clicked(p) {
-    parent.datum(p.parent || hierarchy);
+    parent.datum(p.parent || root);
 
-    hierarchy.each(
-      (d) =>
-        (d.target = {
-          x0:
-            Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
-            2 *
-            Math.PI,
-          x1:
-            Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
-            2 *
-            Math.PI,
-          y0: Math.max(0, d.y0 - p.depth),
-          y1: Math.max(0, d.y1 - p.depth),
-        })
-    );
+    hierarchy.each((d) => {
+      return (d.target = {
+        x0:
+          Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        x1:
+          Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        y0: Math.max(0, d.y0 - p.depth),
+        y1: Math.max(0, d.y1 - p.depth),
+      });
+    });
 
     const t = g.transition().duration(750);
 
@@ -177,7 +166,6 @@ const drawDiagram = (valueField, data, cb) => {
       .tween("data", (d) => {
         const i = d3.interpolate(d.current, d.target);
         return (t) => {
-        console.log(i(t));
           d.current = i(t);
         };
       })
@@ -200,42 +188,18 @@ const drawDiagram = (valueField, data, cb) => {
   }
 
   d3.selectAll("input[name='valuefield']").on("click", function (d, i) {
-    hierarchy.sum((d) => d[this.value]);
+    root.sum((d) => d[this.value]);
     // drawDiagram(this.value, data);
-    partition(hierarchy);
+    partition(root);
+    let isTarget = null;
+    root.each((d) => {
+      if (d.target) {
+        isTarget = d.target;
+      }
+      return (d.current = d);
+    });
 
-    hierarchy.each(
-      (d) =>
-        (d.target = {
-          x0:
-            Math.max(0, Math.min(1, (d.x0) / (d.x1))) *
-            2 *
-            Math.PI,
-          x1:
-            Math.max(0, Math.min(1, (d.x1))) *
-            2 *
-            Math.PI,
-          y0: Math.max(0, d.y0),
-          y1: Math.max(0, d.y1),
-        })
-    );
-
-
-    path
-      .transition()
-      .duration(750)
-      .tween("data", (d) => {
-        const i = d3.interpolate(d.current, d.target);
-        return (t) => {
-          d.current = i(t);
-        };
-      })
-      .attrTween("d", (d) => () => arc(d.current));
-
-    // path
-    //   .transition()
-    //   .duration(750)
-    //   .attrTween("d", (d) => arcTweenPath(d));
+    path.transition().duration(750).attr("d", arc);
 
     label
       .transition()
