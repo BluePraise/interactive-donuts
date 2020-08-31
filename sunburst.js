@@ -6,8 +6,14 @@ const drawDiagram = (valueField, data, cb) => {
   const radius = width / 6;
   const arc = d3
     .arc()
-    .startAngle((d) => d.x0)
-    .endAngle((d) => d.x1)
+    .startAngle((d) => {
+      d.x0s = d.x0;
+      return d.x0;
+    })
+    .endAngle((d) => {
+      d.x1s = d.x1;
+      return d.x1;
+    })
     .padAngle((d) => Math.min((d.x1 - d.x0) / 2, 0.005))
     .padRadius(radius * 1.5)
     .innerRadius((d) => d.y0 * radius)
@@ -67,8 +73,38 @@ const drawDiagram = (valueField, data, cb) => {
       tooltip
         .filter((d) => +this.getAttribute("fill-opacity"))
         .html(`<p>${d.data.name}</p>`)
-        .style("left", d3.event.pageX - 10 + "px")
-        .style("top", d3.event.pageY + "px");
+        .style("left", () => {
+          let left = arc.centroid(d)[0];
+          if (d.target) {
+            left = arc.centroid(d.target)[0];
+          }
+          if (Math.sign(left) == -1) {
+            // left -= x;
+          } else {
+            // left += x;
+          }
+          if (d.depth < 2) {
+            return left + 300 + "px";
+          } else {
+            return left + 300 + "px";
+          }
+        })
+        .style("top", () => {
+          let top = arc.centroid(d)[1];
+          if (d.target) {
+            top = arc.centroid(d.target)[1];
+          }
+          if (Math.sign(top) == -1) {
+            // top -= y;
+          } else {
+            // top += y;
+          }
+          if (d.depth < 2) {
+            return top + 300 + "px";
+          } else {
+            return top + 300 + "px";
+          }
+        });
       if (tooltip.classed("dedicated") && d.data.classname !== "dedicated") {
         tooltip.classed("dedicated", false);
         tooltip.classed("mainstreaming", true);
@@ -141,6 +177,7 @@ const drawDiagram = (valueField, data, cb) => {
       .tween("data", (d) => {
         const i = d3.interpolate(d.current, d.target);
         return (t) => {
+        console.log(i(t));
           d.current = i(t);
         };
       })
@@ -156,7 +193,8 @@ const drawDiagram = (valueField, data, cb) => {
       .filter(function (d) {
         return +this.getAttribute("fill-opacity") || labelVisible(d.target);
       })
-      .transition(t)
+      .transition()
+      .duration(750)
       .attr("fill-opacity", (d) => (+labelVisible(d.target) ? 1 : 0))
       .attrTween("transform", (d) => () => labelTransform(d.current));
   }
@@ -166,7 +204,38 @@ const drawDiagram = (valueField, data, cb) => {
     // drawDiagram(this.value, data);
     partition(hierarchy);
 
-    path.transition().duration(750).attr("d", arc);
+    hierarchy.each(
+      (d) =>
+        (d.target = {
+          x0:
+            Math.max(0, Math.min(1, (d.x0) / (d.x1))) *
+            2 *
+            Math.PI,
+          x1:
+            Math.max(0, Math.min(1, (d.x1))) *
+            2 *
+            Math.PI,
+          y0: Math.max(0, d.y0),
+          y1: Math.max(0, d.y1),
+        })
+    );
+
+
+    path
+      .transition()
+      .duration(750)
+      .tween("data", (d) => {
+        const i = d3.interpolate(d.current, d.target);
+        return (t) => {
+          d.current = i(t);
+        };
+      })
+      .attrTween("d", (d) => () => arc(d.current));
+
+    // path
+    //   .transition()
+    //   .duration(750)
+    //   .attrTween("d", (d) => arcTweenPath(d));
 
     label
       .transition()
@@ -175,17 +244,21 @@ const drawDiagram = (valueField, data, cb) => {
       .attr("transform", (d) => labelTransform(d.current));
   });
 
+  /**
+   * When switching data: interpolate the arcs in data space.
+   * @param {Node} a
+   * @param {Number} i
+   * @return {Number}
+   */
   function arcTweenPath(a, i) {
-    var oi = d3.interpolate({ x0: a.x0 + 0.1, x1: a.x1 + 0.1 }, a);
+    var oi = d3.interpolate({ x0: a.x0s, x1: a.x1s }, a);
 
-    function tween(t) {
+    return (t) => {
       var b = oi(t);
-      a.x0 = b.x0;
-      a.x1 = b.x1;
+      a.x0s = b.x0;
+      a.x1s = b.x1;
       return arc(b);
-    }
-
-    return tween;
+    };
   }
 
   function arcTweenText(a, i) {
