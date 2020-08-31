@@ -49,8 +49,24 @@ const drawDiagram = (valueField, data, cb) => {
     })
     .attr("fill-opacity", (d) =>
       arcVisible(d.current) ? (d.children ? 1 : 0) : 0
-    )
-    .attr("d", arc);
+    );
+
+  path
+    .transition()
+    .delay(function (d, i) {
+      while (i < 2) {
+        return i * 500;
+      }
+    })
+    .duration(500)
+    .attrTween("d", function (d) {
+      var i = d3.interpolate(d.x0, d.x1);
+      return function (t) {
+        d.x1 = i(t);
+        return arc(d.current);
+      };
+    });
+  // .attr("d", (d) => arc(d.current));
 
   path
     .filter((d) => d.children)
@@ -145,16 +161,21 @@ const drawDiagram = (valueField, data, cb) => {
   function clicked(p) {
     parent.datum(p.parent || root);
 
-    hierarchy.each((d) => {
-      return (d.target = {
-        x0:
-          Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
-        x1:
-          Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
-        y0: Math.max(0, d.y0 - p.depth),
-        y1: Math.max(0, d.y1 - p.depth),
-      });
-    });
+    root.each(
+      (d) =>
+        (d.target = {
+          x0:
+            Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
+            2 *
+            Math.PI,
+          x1:
+            Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
+            2 *
+            Math.PI,
+          y0: Math.max(0, d.y0 - p.depth),
+          y1: Math.max(0, d.y1 - p.depth),
+        })
+    );
 
     const t = g.transition().duration(750);
 
@@ -207,36 +228,6 @@ const drawDiagram = (valueField, data, cb) => {
       .text((d) => d.value)
       .attr("transform", (d) => labelTransform(d.current));
   });
-
-  /**
-   * When switching data: interpolate the arcs in data space.
-   * @param {Node} a
-   * @param {Number} i
-   * @return {Number}
-   */
-  function arcTweenPath(a, i) {
-    var oi = d3.interpolate({ x0: a.x0s, x1: a.x1s }, a);
-
-    return (t) => {
-      var b = oi(t);
-      a.x0s = b.x0;
-      a.x1s = b.x1;
-      return arc(b);
-    };
-  }
-
-  function arcTweenText(a, i) {
-    var oi = d3.interpolate({ x0: a.x0s, x1: a.x1s }, a);
-    function tween(t) {
-      var d = oi(t);
-      const x = (((d.x0 + d.x1) / 2) * 180) / Math.PI;
-      const y = ((d.y0 + d.y1) / 2) * radius;
-      return `rotate(${x - 100}) translate(${y},0) rotate(${
-        x < 180 ? 0 : 180
-      })`;
-    }
-    return tween;
-  }
 
   function arcVisible(d) {
     return d.y1 <= 2 && d.y0 >= 1 && d.x1 > d.x0;
