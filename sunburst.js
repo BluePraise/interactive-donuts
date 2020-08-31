@@ -25,7 +25,7 @@ const drawDiagram = (valueField, data, cb) => {
   const root = partition(hierarchy);
   const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
 
-  hierarchy.each((d) => (d.current = d));
+  root.each((d) => (d.current = d));
 
   const svg = d3
     .select("#partitionSVG")
@@ -47,9 +47,7 @@ const drawDiagram = (valueField, data, cb) => {
       while (d.depth > 1) d = d.parent;
       return color(d.data.name);
     })
-    .attr("fill-opacity", (d) =>
-      arcVisible(d.current) ? (d.children ? 1 : 0) : 0
-    );
+    .attr("fill-opacity", (d) => (arcVisible(d) ? (d.children ? 1 : 0) : 0));
 
   path
     .transition()
@@ -63,10 +61,10 @@ const drawDiagram = (valueField, data, cb) => {
       var i = d3.interpolate(d.x0, d.x1);
       return function (t) {
         d.x1 = i(t);
-        return arc(d.current);
+        return arc(d);
       };
     });
-  // .attr("d", (d) => arc(d.current));
+  // .attr("d", (d) => arc(d));
 
   path
     .filter((d) => d.children)
@@ -144,10 +142,8 @@ const drawDiagram = (valueField, data, cb) => {
       return d.data.classname;
     })
     .attr("dy", "0.35em")
-    .attr("fill-opacity", (d) =>
-      +labelVisible(d.current) ? (d.children ? 1 : 0) : 0
-    )
-    .attr("transform", (d) => labelTransform(d.current))
+    .attr("fill-opacity", (d) => (+labelVisible(d) ? (d.children ? 1 : 0) : 0))
+    .attr("transform", (d) => labelTransform(d))
     .text((d) => d.value);
 
   const parent = g
@@ -161,21 +157,19 @@ const drawDiagram = (valueField, data, cb) => {
   function clicked(p) {
     parent.datum(p.parent || root);
 
-    root.each(
-      (d) =>
-        (d.target = {
-          x0:
-            Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) *
-            2 *
-            Math.PI,
-          x1:
-            Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) *
-            2 *
-            Math.PI,
-          y0: Math.max(0, d.y0 - p.depth),
-          y1: Math.max(0, d.y1 - p.depth),
-        })
-    );
+    root.each((d) => {
+      d.target = {
+        x0:
+          Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        x1:
+          Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        y0: Math.max(0, d.y0 - p.depth),
+        y1: Math.max(0, d.y1 - p.depth),
+      };
+      d.clicked = p;
+
+      return d;
+    });
 
     const t = g.transition().duration(750);
 
@@ -186,9 +180,7 @@ const drawDiagram = (valueField, data, cb) => {
       .transition(t)
       .tween("data", (d) => {
         const i = d3.interpolate(d.current, d.target);
-        return (t) => {
-          d.current = i(t);
-        };
+        return (t) => (d.current = i(t));
       })
       .filter(function (d) {
         return +this.getAttribute("fill-opacity") || arcVisible(d.target);
@@ -202,31 +194,73 @@ const drawDiagram = (valueField, data, cb) => {
       .filter(function (d) {
         return +this.getAttribute("fill-opacity") || labelVisible(d.target);
       })
-      .transition()
-      .duration(750)
-      .attr("fill-opacity", (d) => (+labelVisible(d.target) ? 1 : 0))
+      .transition(t)
+      .attr("fill-opacity", (d) => +labelVisible(d.target))
       .attrTween("transform", (d) => () => labelTransform(d.current));
   }
 
-  d3.selectAll("input[name='valuefield']").on("click", function (d, i) {
+  d3.selectAll("input[name='valuefield']").on("click", function () {
     root.sum((d) => d[this.value]);
-    // drawDiagram(this.value, data);
     partition(root);
+
     let isTarget = null;
+
     root.each((d) => {
-      if (d.target) {
+      if (d.clicked) {
         isTarget = d.target;
+        d.target = {
+          x0:
+            Math.max(
+              0,
+              Math.min(1, (d.x0 - d.clicked.x0) / (d.clicked.x1 - d.clicked.x0))
+            ) *
+            2 *
+            Math.PI,
+          x1:
+            Math.max(
+              0,
+              Math.min(1, (d.x1 - d.clicked.x0) / (d.clicked.x1 - d.clicked.x0))
+            ) *
+            2 *
+            Math.PI,
+          y0: Math.max(0, d.y0 - d.clicked.depth),
+          y1: Math.max(0, d.y1 - d.clicked.depth),
+        };
       }
-      return (d.current = d);
+      return d;
     });
 
-    path.transition().duration(750).attr("d", arc);
+    if (!isTarget) {
+      path
+        .transition()
+        .duration(750)
+        .attr("d", (d) => arc(d.current));
 
-    label
-      .transition()
-      .duration(750)
-      .text((d) => d.value)
-      .attr("transform", (d) => labelTransform(d.current));
+      label
+        .transition()
+        .duration(750)
+        .text((d) => d.value)
+        .attr("transform", (d) => labelTransform(d.current));
+    } else {
+      path
+        .transition()
+        .duration(750)
+        .tween("data", (d) => {
+          const i = d3.interpolate(d.current, d.target);
+          return (t) => (d.current = i(t));
+        })
+        .attrTween("d", (d) => () => {
+          return arc(d.current);
+        });
+
+      label
+        .transition()
+        .duration(750)
+        .text((d) => {
+          return d.value;
+        })
+        .attrTween("transform", (d) => () => labelTransform(d.current));
+    }
   });
 
   function arcVisible(d) {
