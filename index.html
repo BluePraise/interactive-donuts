@@ -9,21 +9,28 @@
     <div class="svg-container">
       <div class="svg-controls">
         <div class="valuefield-radio">
-          <input
-            type="radio"
-            checked
-            id="lower"
-            name="valuefield"
-            value="lower"
-          />
-          <label for="lower">Lower</label><br />
-          <input type="radio" id="upper" name="valuefield" value="upper" />
-          <label for="upper">Upper</label><br />
+          <div class="switch switch--horizontal">
+            <input
+              type="radio"
+              name="valuefield"
+              id="radio-a"
+              value="lower"
+              checked
+            />
+            <label for="radio-a">Lower</label>
+            <input type="radio" id="radio-b" name="valuefield" value="upper" />
+
+            <label for="radio-b">Upper</label>
+            <span class="toggle-outside"
+              ><span class="toggle-inside"></span
+            ></span>
+          </div>
         </div>
       </div>
-      <div id="partitionSVG" class="svg-chart-container"></div>
+      <div id="partitionSVG" class="svg-chart-container">
+        <div class="tooltip"></div>
+      </div>
     </div>
-    <div class="tooltip"></div>
 
     <script src="sunburst.js"></script>
   </body>
