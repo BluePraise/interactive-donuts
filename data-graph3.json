@@ -1,77 +1,75 @@
 {
-    "name": "graph-3", 
-    "children": [
+  "name": "graph-3",
+  "children": [
+    {
+      "name": "Positive Flows",
+      "children": [
         {
-          "name": "Positive Flows",
-          "children": [
-              {
-                "name": "Biodiversity offsets",
-                "lower": 168,
-                "upper": 162
-              },
-              {
-                "name": "Domestic budgets and tax policy",
-                "lower": 103,
-                "upper": 155
-              },
-              {
-                "name": "Natural infrastructure",
-                "lower": 105,
-                "upper": 139
-              },
-              {
-                "name": "Green financial products",
-                "lower": 31,
-                "upper": 93
-              },
-              {
-                "name": "Nature-based solutions and Carbon markets",
-                "lower": 25,
-                "upper": 40
-              },
-              {
-                "name": "Sustainable supply chains",
-                "lower": 12,
-                "upper": 19
-              },
-              {
-                "name": "Official Development Assistance (ODA)",
-                "lower": 8,
-                "upper": 19
-              },
-              {
-                "name": "Philanthropy and conservation NGOs",
-                "lower": 3,
-                "upper": 8
-              }
-          ]
+          "name": "Biodiversity offsets",
+          "lower": 162,
+          "upper": 168
         },
         {
-            "name": "Negative Flows",
-            "children": [
-                {
-                  "name": "Fossil fuels subsidies",
-                  "lower": 0,
-                  "upper": 82
-                },
-                {
-                  "name": "Agricultural subsidies",
-                  "lower": 0,
-                  "upper": 221
-                },
-                {
-                  "name": "Fisheries subsidies",
-                  "lower": 0,
-                  "upper": 20
-                },
-                {
-                  "name": "Forestry subsidies",
-                  "lower": 0,
-                  "upper": 27
-                }
-            ]
+          "name": "Domestic budgets and tax policy",
+          "lower": 103,
+          "upper": 155
+        },
+        {
+          "name": "Natural infrastructure",
+          "lower": 105,
+          "upper": 139
+        },
+        {
+          "name": "Green financial products",
+          "lower": 31,
+          "upper": 93
+        },
+        {
+          "name": "Nature-based solutions and Carbon markets",
+          "lower": 25,
+          "upper": 40
+        },
+        {
+          "name": "Sustainable supply chains",
+          "lower": 12,
+          "upper": 19
+        },
+        {
+          "name": "Official Development Assistance (ODA)",
+          "lower": 8,
+          "upper": 19
+        },
+        {
+          "name": "Philanthropy and conservation NGOs",
+          "lower": 3,
+          "upper": 8
         }
-        
-    ]
-  }
-  
+      ]
+    },
+    {
+      "name": "Negative Flows",
+      "children": [
+        {
+          "name": "Fossil fuels subsidies",
+          "lower": 0,
+          "upper": 82
+        },
+        {
+          "name": "Agricultural subsidies",
+          "lower": 0,
+          "upper": 221
+        },
+        {
+          "name": "Fisheries subsidies",
+          "lower": 0,
+          "upper": 20
+        },
+        {
+          "name": "Forestry subsidies",
+          "lower": 0,
+          "upper": 27
+        }
+      ]
+    }
+  ]
+}
