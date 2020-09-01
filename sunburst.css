@@ -82,13 +82,13 @@ div.tooltip {
 }
 
 .tooltip.mainstreaming {
-  background: #387c85;
-  color: #f29ebe;
+  color: #387c85;
+  background: #f29ebe;
 }
 
 .tooltip.dedicated {
-  color: #387c85;
-  background: #f29ebe;
+  background: #387c85;
+  color: #f29ebe;
 }
 
 input[type="radio"].toggle:checked + label {
