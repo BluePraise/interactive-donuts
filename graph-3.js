@@ -9,6 +9,7 @@ function drawDiagram(valueField, data) {
   const width = 600;
   const height = 600;
   const radius = width / 6;
+  const arcOuterRadius = radius * 2.5;
 
   const pie = (val) =>
     d3
@@ -21,10 +22,7 @@ function drawDiagram(valueField, data) {
 
   const arcs = pie(valueField)(data.children[0].children);
 
-  const arc = d3
-    .arc()
-    .innerRadius(0.8)
-    .outerRadius(radius * 2.5);
+  const arc = d3.arc().innerRadius(0.8).outerRadius(arcOuterRadius);
 
   const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
 
@@ -66,75 +64,74 @@ function drawDiagram(valueField, data) {
   path.style("cursor", "pointer").on("click", clicked);
 
   function clicked(p) {
-    const arcs = pie("upper")(data.children[1].children);
+    const donutArcs = pie("upper")(data.children[1].children);
     const donutArc = d3
       .arc()
-      .innerRadius(radius * 2.5)
-      .outerRadius(radius * 3);
+      .innerRadius(arcOuterRadius * 0.75)
+      .outerRadius(arcOuterRadius);
 
-    const path = g
+    const donutPath = g
       .append("g")
       .selectAll("path")
-      .data(arcs)
-      .join("path")
-      .transition()
-      .duration(500)
-      .attr("fill", "#f29ebe")
-      .attr("d", donutArc);
+      .data(donutArcs)
+      .join("path");
 
-    const label = g
+    donutPath
+      .transition()
+      .attr("fill", "#f29ebe")
+      .delay(function (d, i) {
+        return i * 400;
+      })
+      .duration(500)
+      .attrTween("d", function (d) {
+        var i = d3.interpolate(d.startAngle, d.endAngle);
+        return function (t) {
+          d.endAngle = i(t);
+          return donutArc(d);
+        };
+      });
+
+    const donutLabel = g
       .append("g")
       .attr("pointer-events", "none")
       .attr("text-anchor", "middle")
       .style("user-select", "none")
       .selectAll("text")
-      .data(arcs)
-      .join("text")
-      .attr("fill", (d) => color())
+      .data(donutArcs)
+      .join("text");
+
+    donutLabel
       .attr("transform", (d) => {
-        return `translate(${arcLabel2().centroid(d)})`;
+        return `translate(${donutArc.centroid(d)})`;
       })
+      .transition()
+      .delay(function (d, i) {
+        return i * 450;
+      })
+      .duration(500)
+      .attr("dy", "0.35em")
+      .attr("fill", (d) => color())
       .text((d) => d.value);
+
+    donutPath.on("mouseover", tooltipMouseOver).on("mouseout", tooltipMouseOut);
+
+    const newArc = d3
+      .arc()
+      .innerRadius(0.8)
+      .outerRadius(arcOuterRadius * 0.75);
+
+    path.transition().duration(750).attr("d", newArc);
+    label
+      .transition()
+      .duration(750)
+      .attr("dy", "0.35em")
+      .attr("transform", (d) => {
+        return `translate(${newArc.centroid(d)})`;
+      })
+      .style("font-size", "15px");
   }
 
-  path
-    .on("mouseover", function (d) {
-      tooltip.transition().duration(200).style("opacity", 1);
-      tooltip
-        .html(`<p>${d.data.name}</p>`)
-        .style("left", () => {
-          let left = arc.centroid(d)[0];
-
-          if (d.depth < 2) {
-            return left + 300 + "px";
-          } else {
-            return left + 300 + "px";
-          }
-        })
-        .style("top", () => {
-          let top = arc.centroid(d)[1];
-          if (d.depth < 2) {
-            return top + 300 + "px";
-          } else {
-            return top + 300 + "px";
-          }
-        });
-      if (tooltip.classed("dedicated") && d.data.classname !== "dedicated") {
-        tooltip.classed("dedicated", false);
-        tooltip.classed("mainstreaming", true);
-      } else if (
-        tooltip.classed("mainstreaming") &&
-        d.data.classname !== "mainstreaming"
-      ) {
-        tooltip.classed("mainstreaming", false);
-        tooltip.classed("dedicated", true);
-      } else {
-        tooltip.classed(d.data.classname, true);
-      }
-    })
-    .on("mouseout", function (d) {
-      tooltip.transition().duration(500).style("opacity", 0);
-    });
+  path.on("mouseover", tooltipMouseOver).on("mouseout", tooltipMouseOut);
 
   const label = g
     .append("g")
@@ -143,7 +140,9 @@ function drawDiagram(valueField, data) {
     .style("user-select", "none")
     .selectAll("text")
     .data(arcs)
-    .join("text")
+    .join("text");
+
+  label
     .attr("fill", (d) => color(1))
     .attr("transform", (d) => {
       return `translate(${arcLabel().centroid(d)})`;
@@ -178,14 +177,57 @@ function drawDiagram(valueField, data) {
   });
 
   function arcLabel() {
-    const rds = radius * 2;
-    return d3.arc().innerRadius(rds).outerRadius(rds);
+    return d3
+      .arc()
+      .innerRadius(arcOuterRadius * 0.5)
+      .outerRadius(arcOuterRadius);
   }
 
   function arcLabel2() {
     return d3
       .arc()
       .innerRadius(radius * 2.5)
-      .outerRadius(radius * 3);
+      .outerRadius(arcOuterRadius + 1);
+  }
+
+  function tooltipMouseOver(d) {
+    tooltip.transition().duration(200).style("opacity", 1);
+    tooltip
+      .html(`<p>${d.data.name}</p>`)
+      .style("left", () => {
+        let left;
+        if (d.data.lower) {
+          left = arcLabel().centroid(d)[0];
+        } else {
+          left = arcLabel2().centroid(d)[0];
+        }
+
+        return left + 300 + "px";
+      })
+      .style("top", () => {
+        let top;
+        if (d.data.lower) {
+          top = arcLabel().centroid(d)[1];
+        } else {
+          top = arcLabel2().centroid(d)[1];
+        }
+        return top + 300 + "px";
+      });
+    if (tooltip.classed("dedicated") && d.data.classname !== "dedicated") {
+      tooltip.classed("dedicated", false);
+      tooltip.classed("mainstreaming", true);
+    } else if (
+      tooltip.classed("mainstreaming") &&
+      d.data.classname !== "mainstreaming"
+    ) {
+      tooltip.classed("mainstreaming", false);
+      tooltip.classed("dedicated", true);
+    } else {
+      tooltip.classed(d.data.classname, true);
+    }
+  }
+
+  function tooltipMouseOut(d) {
+    tooltip.transition().duration(500).style("opacity", 0);
   }
 }
