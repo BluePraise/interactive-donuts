@@ -5,11 +5,11 @@ d3.json("data-graph3.json").then((data) => {
 function drawDiagram(valueField, data) {
   d3.select("#svg-component").remove();
   const tooltip = d3.select(".tooltip").style("opacity", 0);
-  const format = d3.format(",d");
   const width = 600;
   const height = 600;
   const radius = width / 6;
   const arcOuterRadius = radius * 2.5;
+  const ANIMATION_TIMEOUT = 4000;
 
   const pie = (val) =>
     d3
@@ -63,73 +63,10 @@ function drawDiagram(valueField, data) {
 
   path.style("cursor", "pointer").on("click", clicked);
 
-  function clicked(p) {
-    const donutArcs = pie("upper")(data.children[1].children);
-    const donutArc = d3
-      .arc()
-      .innerRadius(arcOuterRadius * 0.75)
-      .outerRadius(arcOuterRadius);
+  // const timer = d3.timer(clicked, 10000);
+  const donutTimeout = setTimeout(clicked, ANIMATION_TIMEOUT);
 
-    const donutPath = g
-      .append("g")
-      .selectAll("path")
-      .data(donutArcs)
-      .join("path");
-
-    donutPath
-      .transition()
-      .attr("fill", "#f29ebe")
-      .delay(function (d, i) {
-        return i * 400;
-      })
-      .duration(500)
-      .attrTween("d", function (d) {
-        var i = d3.interpolate(d.startAngle, d.endAngle);
-        return function (t) {
-          d.endAngle = i(t);
-          return donutArc(d);
-        };
-      });
-
-    const donutLabel = g
-      .append("g")
-      .attr("pointer-events", "none")
-      .attr("text-anchor", "middle")
-      .style("user-select", "none")
-      .selectAll("text")
-      .data(donutArcs)
-      .join("text");
-
-    donutLabel
-      .attr("transform", (d) => {
-        return `translate(${donutArc.centroid(d)})`;
-      })
-      .transition()
-      .delay(function (d, i) {
-        return i * 450;
-      })
-      .duration(500)
-      .attr("dy", "0.35em")
-      .attr("fill", (d) => color())
-      .text((d) => d.value);
-
-    donutPath.on("mouseover", tooltipMouseOver).on("mouseout", tooltipMouseOut);
-
-    const newArc = d3
-      .arc()
-      .innerRadius(0.8)
-      .outerRadius(arcOuterRadius * 0.75);
-
-    path.transition().duration(750).attr("d", newArc);
-    label
-      .transition()
-      .duration(750)
-      .attr("dy", "0.35em")
-      .attr("transform", (d) => {
-        return `translate(${newArc.centroid(d)})`;
-      })
-      .style("font-size", "15px");
-  }
+  let donutLabel, donutPath;
 
   path.on("mouseover", tooltipMouseOver).on("mouseout", tooltipMouseOut);
 
@@ -188,6 +125,91 @@ function drawDiagram(valueField, data) {
       .arc()
       .innerRadius(radius * 2.5)
       .outerRadius(arcOuterRadius + 1);
+  }
+
+  function clicked(p) {
+    const donutArcs = pie("upper")(data.children[1].children);
+    const donutArc = d3
+      .arc()
+      .innerRadius(arcOuterRadius * 0.75)
+      .outerRadius(arcOuterRadius);
+
+    donutPath = g.append("g").selectAll("path").data(donutArcs).join("path");
+
+    donutPath
+      .transition()
+      .attr("fill", "#f29ebe")
+      .attr("fill-opacity", 1)
+      .delay(function (d, i) {
+        return i * 400;
+      })
+      .duration(500)
+      .attrTween("d", function (d) {
+        var i = d3.interpolate(d.startAngle, d.endAngle);
+        return function (t) {
+          d.endAngle = i(t);
+          return donutArc(d);
+        };
+      });
+
+    donutLabel = g
+      .append("g")
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+      .style("user-select", "none")
+      .selectAll("text")
+      .data(donutArcs)
+      .join("text");
+
+    donutLabel
+      .attr("transform", (d) => {
+        return `translate(${donutArc.centroid(d)})`;
+      })
+      .attr("fill-opacity", 1)
+      .transition()
+      .delay(function (d, i) {
+        return i * 450;
+      })
+      .duration(500)
+      .attr("dy", "0.35em")
+      .attr("fill", (d) => color())
+      .text((d) => d.value);
+
+    donutPath.on("mouseover", tooltipMouseOver).on("mouseout", tooltipMouseOut);
+
+    const newArc = d3
+      .arc()
+      .innerRadius(0.8)
+      .outerRadius(arcOuterRadius * 0.75);
+
+    path.transition().duration(750).attr("d", newArc);
+    label
+      .transition()
+      .duration(750)
+      .attr("dy", "0.35em")
+      .attr("transform", (d) => {
+        return `translate(${newArc.centroid(d)})`;
+      })
+      .style("font-size", "15px");
+
+    const substractTimeout = setTimeout(substract, ANIMATION_TIMEOUT);
+  }
+
+  function substract() {
+    const donutArcs = pie("upper")(data.children[1].children);
+
+    donutPath.transition().duration(750).attr("fill-opacity", 0);
+
+    donutLabel.transition().duration(750).attr("fill-opacity", 0);
+
+    label.each((d, i) => console.log(d.value - donutLabel.data()[i].value));
+
+    // label.text((d) => console.log(d));
+
+    console.log(label.data());
+    console.log(label.each((i) => console.log(i)));
+
+    donutPath.on("mouseover", null).on("mouseout", null);
   }
 
   function tooltipMouseOver(d) {
