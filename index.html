@@ -1,37 +1,22 @@
 <!DOCTYPE html>
 <head>
-  <meta charset="utf-8" />
-  <title>Sunburst Graph 1</title>
-  <link rel="stylesheet" href="sunburst.css" />
-  <script src="https://d3js.org/d3.v5.min.js"></script>
+    <meta charset="utf-8" />
+    <title>Sunburst Graph 1</title>
+    <link rel="stylesheet" href="sunburst.css" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
 
-  <body>
-    <div class="svg-container">
-      <div class="svg-controls">
-        <div class="valuefield-radio">
-          <div class="switch switch--horizontal">
-            <input
-              type="radio"
-              name="valuefield"
-              id="radio-a"
-              value="lower"
-              checked
-            />
-            <label for="radio-a">Lower</label>
-            <input type="radio" id="radio-b" name="valuefield" value="upper" />
-
-            <label for="radio-b">Upper</label>
-            <span class="toggle-outside"
-              ><span class="toggle-inside"></span
-            ></span>
-          </div>
+    <body>
+        <div class="svg-container">
+            <div class="svg-controls">
+                <button class="reset-btn" onclick="loadData()">
+                    Reset Animation
+                </button>
+            </div>
+            <div id="partitionSVG" class="svg-chart-container">
+                <div class="tooltip"></div>
+            </div>
         </div>
-      </div>
-      <div id="partitionSVG" class="svg-chart-container">
-        <div class="tooltip"></div>
-      </div>
-    </div>
 
-    <script src="sunburst.js"></script>
-  </body>
+        <script src="graph-3.js"></script>
+    </body>
 </head>

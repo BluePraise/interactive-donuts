@@ -1,4 +1,8 @@
-const drawDiagram = (valueField, data, cb) => {
+d3.json("data.json").then((data) => {
+  drawDiagram("lower", data);
+});
+
+function drawDiagram(valueField, data, cb) {
   d3.select("#svg-component").remove();
   const tooltip = d3.select(".tooltip").style("opacity", 0);
   const format = d3.format(",d");
@@ -276,8 +280,4 @@ const drawDiagram = (valueField, data, cb) => {
     const y = ((d.y0 + d.y1) / 2) * radius;
     return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
   }
-};
-
-d3.json("data.json").then((data) => {
-  drawDiagram("lower", data);
-});
+}
