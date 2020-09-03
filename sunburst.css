@@ -56,6 +56,7 @@ text {
   margin: 0 auto;
   width: 80%;
   height: 700px;
+  padding-top: 1em;
 }
 
 .svg-chart-container {
@@ -242,4 +243,13 @@ input[type="radio"].toggle-right + label {
 .switch--horizontal .toggle-inside input,
 .switch--horizontal .toggle-inside .toggle-outside {
   left: 0;
+}
+
+.reset-btn {
+  padding: 0.5em;
+  background: white;
+  border: 1px solid black;
+  border-radius: 0.4em;
+  line-height: 1;
+  cursor: pointer;
 }

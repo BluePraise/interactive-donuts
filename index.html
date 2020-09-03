@@ -8,30 +8,9 @@
     <body>
         <div class="svg-container">
             <div class="svg-controls">
-                <button onclick="loadData()">Reset Animation</button>
-                <div class="valuefield-radio">
-                    <div class="switch switch--horizontal">
-                        <input
-                            type="radio"
-                            name="valuefield"
-                            id="radio-a"
-                            value="lower"
-                            checked
-                        />
-                        <label for="radio-a">Lower</label>
-                        <input
-                            type="radio"
-                            id="radio-b"
-                            name="valuefield"
-                            value="upper"
-                        />
-
-                        <label for="radio-b">Upper</label>
-                        <span class="toggle-outside"
-                            ><span class="toggle-inside"></span
-                        ></span>
-                    </div>
-                </div>
+                <button class="reset-btn" onclick="loadData()">
+                    Reset Animation
+                </button>
             </div>
             <div id="partitionSVG" class="svg-chart-container">
                 <div class="tooltip"></div>

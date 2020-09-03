@@ -27,13 +27,13 @@ function drawDiagram(valueField, data, cb) {
     .arc()
     .startAngle((d) => d.x0)
     .endAngle((d) => d.x1)
-    .padAngle(0.005)
-    .padRadius(radius / 1.5)
+    .padAngle(0.04)
+    .padRadius(radius * 0.15)
     .innerRadius(function (d) {
       if (d.depth == 1) {
-        return radius * 1.2 - d.y1;
+        return radius * 1.205 - d.y1;
       }
-      return radius - d.y1;
+      return radius - d.y1 + 1;
     })
     .outerRadius(function (d) {
       if (d.depth == 1) {
