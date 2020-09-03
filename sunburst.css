@@ -48,8 +48,12 @@ label {
 }
 
 text {
-  font: 24px Ahamono;
+  font: 20px Ahamono;
   text-anchor: middle;
+}
+
+path:not([fill-opacity="0"]) {
+  cursor: pointer;
 }
 
 .svg-container {
@@ -83,13 +87,13 @@ div.tooltip {
 }
 
 .tooltip.mainstreaming {
-  background: #387c85;
-  color: #f29ebe;
+  color: #387c85;
+  background: #f29ebe;
 }
 
 .tooltip.dedicated {
-  color: #387c85;
-  background: #f29ebe;
+  background: #387c85;
+  color: #f29ebe;
 }
 
 input[type="radio"].toggle:checked + label {
@@ -132,117 +136,6 @@ input[type="radio"].toggle-right + label {
 
 .hidden {
   display: none;
-}
-
-.switch {
-  margin: 4rem auto;
-}
-
-.switch {
-  width: 24rem;
-  position: relative;
-}
-
-.switch input {
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.switch input:checked {
-  z-index: 1;
-}
-
-.switch input:checked + label {
-  opacity: 1;
-  cursor: default;
-}
-
-.switch input:not(:checked) + label:hover {
-  opacity: 0.5;
-}
-
-.switch label {
-  color: #fff;
-  opacity: 0.33;
-  transition: opacity 0.25s ease;
-  cursor: pointer;
-}
-
-.switch .toggle-outside {
-  height: 100%;
-  border-radius: 2rem;
-  padding: 0.25rem;
-  overflow: hidden;
-  transition: 0.25s ease all;
-}
-
-.switch .toggle-inside {
-  border-radius: 5rem;
-  background: #4a4a4a;
-  position: absolute;
-  transition: 0.25s ease all;
-}
-
-.switch--horizontal {
-  width: 15rem;
-  height: 2.5rem;
-  margin: 1rem auto;
-  font-size: 0;
-  margin-bottom: 1rem;
-}
-
-.switch--horizontal input {
-  height: 2.5rem;
-  width: 5rem;
-  left: 5rem;
-  margin: 0;
-}
-
-.switch--horizontal label {
-  font-size: 1.5rem;
-  line-height: 3rem;
-  display: inline-block;
-  width: 5rem;
-  height: 100%;
-  margin: 0;
-  text-align: center;
-  color: black;
-}
-
-.switch--horizontal label:last-of-type {
-  margin-left: 5rem;
-}
-
-.switch--horizontal .toggle-outside {
-  background: #eee;
-  position: absolute;
-  width: 5rem;
-  left: 5rem;
-}
-
-.switch--horizontal .toggle-inside {
-  height: 2rem;
-  width: 2rem;
-}
-
-.switch--horizontal input:checked ~ .toggle-outside .toggle-inside {
-  left: 0.25rem;
-}
-
-.switch--horizontal input ~ input:checked ~ .toggle-outside .toggle-inside {
-  left: 2.75rem;
-  background: #387c85;
-}
-
-.switch--horizontal.toggle-inside {
-  width: 5rem;
-}
-.switch--horizontal .toggle-inside input,
-.switch--horizontal .toggle-inside .toggle-outside {
-  left: 0;
 }
 
 .reset-btn {

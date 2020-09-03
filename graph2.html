@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="sunburst.css" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+      #chart {
+        display: block;
+        margin: 20px auto 0;
+        height: 400px;
+        width: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="draw()">Rerun animation</button>
+    <svg
+      id="chart"
+      preserveAspectRatio="xMinYMin meet"
+      viewBox="0 0 200 200"
+    ></svg>
+
+    <script src="https://d3js.org/colorbrewer.v1.min.js"></script>
+    <script src="graph-2.js"></script>
+  </body>
+</html>
