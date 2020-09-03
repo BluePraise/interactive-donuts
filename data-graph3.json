@@ -1,0 +1,87 @@
+{
+  "name": "graph-3",
+  "children": [
+    {
+      "name": "Positive Flows",
+      "children": [
+        {
+          "name": "Biodiversity offsets",
+          "lower": 162,
+          "upper": 168,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Domestic budgets and tax policy",
+          "lower": 103,
+          "upper": 155,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Natural infrastructure",
+          "lower": 105,
+          "upper": 139,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Green financial products",
+          "lower": 31,
+          "upper": 93,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Nature-based solutions and Carbon markets",
+          "lower": 25,
+          "upper": 40,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Sustainable supply chains",
+          "lower": 12,
+          "upper": 19,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Official Development Assistance (ODA)",
+          "lower": 8,
+          "upper": 19,
+          "classname": "mainstreaming"
+        },
+        {
+          "name": "Philanthropy and conservation NGOs",
+          "lower": 3,
+          "upper": 8,
+          "classname": "mainstreaming"
+        }
+      ]
+    },
+    {
+      "name": "Negative Flows",
+      "children": [
+        {
+          "name": "Fossil fuels subsidies",
+          "lower": 0,
+          "upper": 82,
+          "classname": "dedicated"
+        },
+        {
+          "name": "Agricultural subsidies",
+          "lower": 0,
+          "upper": 221,
+          "classname": "dedicated"
+        },
+        {
+          "name": "Fisheries subsidies",
+          "lower": 0,
+          "upper": 20,
+          "classname": "dedicated"
+        },
+        {
+          "name": "Forestry subsidies",
+          "lower": 0,
+          "upper": 27,
+          "classname": "dedicated"
+        }
+      ]
+    }
+  ]
+}

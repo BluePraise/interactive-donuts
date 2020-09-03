@@ -29,6 +29,16 @@
       url("fonts/francois-one-v14-latin-regular.svg#FrancoisOne") format("svg"); /* Legacy iOS */
 }
 
+*,
+*:after,
+*:before {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
 body {
   margin: 0;
 }
@@ -38,19 +48,25 @@ label {
 }
 
 text {
-  font: 24px Ahamono;
+  font: 20px Ahamono;
   text-anchor: middle;
+}
+
+path:not([fill-opacity="0"]) {
+  cursor: pointer;
 }
 
 .svg-container {
   margin: 0 auto;
   width: 80%;
   height: 700px;
+  padding-top: 1em;
 }
 
 .svg-chart-container {
   width: 80%;
   margin: 0 auto;
+  position: relative;
 }
 
 .svg-controls {
@@ -71,13 +87,13 @@ div.tooltip {
 }
 
 .tooltip.mainstreaming {
-  background: #387c85;
-  color: #f29ebe;
+  color: #387c85;
+  background: #f29ebe;
 }
 
 .tooltip.dedicated {
-  color: #387c85;
-  background: #f29ebe;
+  background: #387c85;
+  color: #f29ebe;
 }
 
 input[type="radio"].toggle:checked + label {
@@ -120,4 +136,13 @@ input[type="radio"].toggle-right + label {
 
 .hidden {
   display: none;
+}
+
+.reset-btn {
+  padding: 0.5em;
+  background: white;
+  border: 1px solid black;
+  border-radius: 0.4em;
+  line-height: 1;
+  cursor: pointer;
 }
