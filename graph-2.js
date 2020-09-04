@@ -50,9 +50,11 @@ function drawDiagram(valueField, data) {
     .attr("transform", `translate(${width / 3},${width / 2})`);
 
   g.append("text")
-    .attr("fill", "#000")
+    .classed("caption", true)
     .attr("transform", `translate(0,${width / 2.5})`)
-    .text("text");
+    .html(
+      `Estimated <tspan fill='#387c85'>global biodiversity finance</tspan><tspan x="0" dy="1.5em"> (billion $) in 2019</tspan>`
+    );
 
   const lowerData = pie(valueField)(data.children.slice(0, -1));
   const lowerGapData = pie(valueField)(data.children);
@@ -140,7 +142,11 @@ function drawDiagram(valueField, data) {
         };
       });
 
-    g.select("text").text("new");
+    g.select("text")
+      .classed("caption", true)
+      .html(
+        `Estimated <tspan fill='#387c85'>global biodiversity finance</tspan> and <tspan fill='#f29ebe' x="0" dy="1.5em">biodiversity finance gap</tspan> (billion $) in 2019`
+      );
 
     lowerGapPath
       .on("mouseover", onTooltipMouseOver)
@@ -166,9 +172,12 @@ function drawDiagram(valueField, data) {
 
     futureG
       .append("text")
+      .classed("caption", true)
       .attr("fill", "#000")
       .attr("transform", `translate(0,${width / 2.5})`)
-      .text("text");
+      .html(
+        `Estimated <tspan fill='#387c85'>global biodiversity finance</tspan> <tspan x="0" dy="1.5em">(billion $) in 2030</tspan>`
+      );
 
     futurePath = futureG
       .append("g")
@@ -246,7 +255,12 @@ function drawDiagram(valueField, data) {
         };
       });
 
-    futureG.select("text").text("new");
+    futureG
+      .select("text")
+      .classed(".caption", true)
+      .html(
+        `Estimated <tspan fill='#387c85'>global biodiversity finance</tspan> and <tspan fill='#f29ebe' x="0" dy="1.5em">biodiversity finance gap</tspan> (billion $) in 2030`
+      );
 
     futureGapPath
       .on("mouseover", onTooltipMouseOver)
