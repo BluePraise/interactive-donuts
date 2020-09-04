@@ -60,6 +60,14 @@ function drawDiagram(valueField, data, cb) {
     .append("g")
     .attr("transform", `translate(${width / 2},${width / 2})`);
 
+  const text = g
+    .append("text")
+    .classed("caption", true)
+    .attr("transform", `translate(0,${width / 1.8})`)
+    .html(
+      `<tspan fill='#f29ebe' x="0">Dedicated Conservation</tspan> <tspan x="-0.3em" dy="1.5em">in billion $ per year</tspan>`
+    );
+
   const path = g
     .append("g")
     .selectAll("path")
@@ -187,6 +195,10 @@ function drawDiagram(valueField, data, cb) {
         .text((d) => d.value);
 
       showTotalTimeoutCallCount++;
+
+      text.html(
+        `<tspan fill="#f29ebe">Dedicated Conservation</tspan> and <tspan fill="#387c85">Mainstreaming Biodiversity</tspan><tspan x="0" dy="1.5em">in billion $ per year</tspan>`
+      );
     }
   }
 
