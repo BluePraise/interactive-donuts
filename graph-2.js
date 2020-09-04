@@ -12,15 +12,16 @@ function drawDiagram(valueField, data) {
   const width = 600;
   const height = 600;
   const radius = width / 6;
-  const arcOuterRadius = radius * 2.5;
+  const arcOuterRadius = radius * 2;
   const smallArcOuterRadius = arcOuterRadius * 0.75;
   const ANIMATION_TIMEOUT = 5000;
-  let showDonutTimeout = setTimeout(showDonut, ANIMATION_TIMEOUT);
-  let hideDonutTimeout;
-  let donutLabel,
-    donutPath,
-    isDonutShowed = false,
-    isDonutHidden = false;
+  let showLowerGapTimeout = setTimeout(showLowerGap, ANIMATION_TIMEOUT);
+  let showFutureGapTimeout,
+    lowerGapLabel,
+    futurePath,
+    futureLabel,
+    isLowerGapShowed = false,
+    isFutureGapShowed = false;
 
   const pie = (val) =>
     d3
@@ -31,9 +32,9 @@ function drawDiagram(valueField, data) {
         return d[val];
       });
 
-  const arcs = pie(valueField)(data.children.slice(0, -1));
+  const arc = d3.arc().innerRadius(0.5).outerRadius(arcOuterRadius);
 
-  const arc = d3.arc().innerRadius(0.8).outerRadius(arcOuterRadius);
+  const gapArc = d3.arc().innerRadius(0.8).outerRadius(arcOuterRadius);
 
   const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
 
@@ -46,18 +47,32 @@ function drawDiagram(valueField, data) {
 
   const g = svg
     .append("g")
-    .attr("transform", `translate(${width / 2},${width / 2})`);
+    .attr("transform", `translate(${width / 3},${width / 2})`);
 
-  const path = g
+  g.append("text")
+    .attr("fill", "#000")
+    .attr("transform", `translate(0,${width / 2.5})`)
+    .text("text");
+
+  const lowerData = pie(valueField)(data.children.slice(0, -1));
+  const lowerGapData = pie(valueField)(data.children);
+  const futureData = pie("future lower")(data.children.slice(0, -1));
+  const futureGapData = pie("future lower")(data.children);
+
+  const futureG = svg
+    .append("g")
+    .attr("transform", `translate(${width + 100},${width / 2})`);
+
+  const lowerPath = g
     .append("g")
     .selectAll("path")
-    .data(arcs)
+    .data(lowerData)
     .join("path")
     .attr("fill", (d) => {
       return color();
     });
 
-  path
+  lowerPath
     .transition()
     .delay(function (d, i) {
       return i * 400;
@@ -71,21 +86,14 @@ function drawDiagram(valueField, data) {
       };
     });
 
-  g.selectAll("path")
-    .on("mouseover", onTooltipMouseOver)
-    .on("mousemove", onTooltipMouseMove)
-    .on("mouseout", onTooltipMouseOut);
-
-  const label = g
+  const lowerLabel = g
     .append("g")
-    .attr("pointer-events", "none")
     .attr("text-anchor", "middle")
-    .style("user-select", "none")
     .selectAll("text")
-    .data(arcs)
+    .data(lowerData)
     .join("text");
 
-  label
+  lowerLabel
     .attr("fill", (d) => color(1))
     .attr("transform", (d) => {
       return `translate(${arcLabel().centroid(d)})`;
@@ -104,62 +112,163 @@ function drawDiagram(valueField, data) {
       .outerRadius(arcOuterRadius);
   }
 
-  function smallArcLabel() {
-    return d3
-      .arc()
-      .innerRadius(0.5)
-      .outerRadius(smallArcOuterRadius * 1.5);
+  d3.selectAll("path")
+    .on("mouseover", onTooltipMouseOver)
+    .on("mousemove", onTooltipMouseMove)
+    .on("mouseout", onTooltipMouseOut);
+
+  function showLowerGap(p) {
+    isLowerGapShowed = true;
+
+    const lowerGapPath = g
+      .select("g")
+      .selectAll("path")
+      .data(lowerGapData)
+      .join("path")
+      .attr("fill", (d) => {
+        return color(d.data.classname);
+      });
+
+    lowerGapPath
+      .transition()
+      .duration(750)
+      .attrTween("d", function (d) {
+        var i = d3.interpolate(d.startAngle, d.endAngle);
+        return function (t) {
+          d.endAngle = i(t);
+          return gapArc(d);
+        };
+      });
+
+    g.select("text").text("new");
+
+    lowerGapPath
+      .on("mouseover", onTooltipMouseOver)
+      .on("mousemove", onTooltipMouseMove)
+      .on("mouseout", onTooltipMouseOut);
+
+    const lowerGapLabel = lowerLabel.data(lowerGapData).join("text");
+
+    lowerGapLabel
+      .attr("fill", (d) => {
+        if (d.data.classname == "dedicated") {
+          return "#387c85";
+        }
+        return "#f29ebe";
+      })
+      .attr("dy", "0.35em")
+      .attr("transform", (d) => {
+        return `translate(${arcLabel().centroid(d)})`;
+      })
+      .transition()
+      .duration(500)
+      .text((d) => (d.value > 10 ? d.value : ""));
+
+    futureG
+      .append("text")
+      .attr("fill", "#000")
+      .attr("transform", `translate(0,${width / 2.5})`)
+      .text("text");
+
+    futurePath = futureG
+      .append("g")
+      .selectAll("path")
+      .data(futureData)
+      .join("path")
+      .attr("fill", (d) => {
+        return color(d.data.classname);
+      });
+
+    futurePath
+      .transition()
+      .delay(function (d, i) {
+        return i * 400;
+      })
+      .duration(500)
+      .attrTween("d", function (d) {
+        var i = d3.interpolate(d.startAngle, d.endAngle);
+        return function (t) {
+          d.endAngle = i(t);
+          return gapArc(d);
+        };
+      });
+
+    futurePath
+      .on("mouseover", onTooltipMouseOver)
+      .on("mousemove", onTooltipMouseMove)
+      .on("mouseout", onTooltipMouseOut);
+
+    futureLabel = futureG
+      .append("g")
+      .attr("text-anchor", "middle")
+      .selectAll("text")
+      .data(futureData)
+      .join("text")
+      .attr("fill", (d) => {
+        if (d.data.classname == "dedicated") {
+          return "#387c85";
+        }
+        return "#f29ebe";
+      });
+
+    futureLabel
+      .attr("transform", (d) => {
+        return `translate(${arcLabel().centroid(d)})`;
+      })
+      .transition()
+      .delay(function (d, i) {
+        return i * 450;
+      })
+      .duration(500)
+      .text((d) => (d.value > 10 ? d.value : ""));
+
+    showFutureGapTimeout = setTimeout(showFutureGap, ANIMATION_TIMEOUT);
   }
 
-  function showDonut(p) {
-    if (!isDonutShowed) {
-      const arcs = pie(valueField)(data.children);
+  function showFutureGap(p) {
+    isFutureGapShowed = true;
 
-      const arc = d3.arc().innerRadius(0.8).outerRadius(arcOuterRadius);
+    const futureGapPath = futurePath
+      .data(futureGapData)
+      .join("path")
+      .attr("fill", (d) => {
+        return color(d.data.classname);
+      });
 
-      const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
+    futureGapPath
+      .transition()
+      .duration(750)
+      .attrTween("d", function (d) {
+        var i = d3.interpolate(d.startAngle, d.endAngle);
+        return function (t) {
+          d.endAngle = i(t);
+          return gapArc(d);
+        };
+      });
 
-      newPath = path
-        .data(arcs)
-        .join("path")
-        .attr("fill", (d) => {
-          return color(d.data.classname);
-        });
+    futureG.select("text").text("new");
 
-      newPath
-        .transition()
-        .duration(750)
-        .attrTween("d", function (d) {
-          var i = d3.interpolate(d.startAngle, d.endAngle);
-          return function (t) {
-            d.endAngle = i(t);
-            return arc(d);
-          };
-        });
+    futureGapPath
+      .on("mouseover", onTooltipMouseOver)
+      .on("mousemove", onTooltipMouseMove)
+      .on("mouseout", onTooltipMouseOut);
 
-      const newLabel = label.data(arcs).join("text");
+    const futureGapLabel = futureLabel.data(futureGapData).join("text");
 
-      newLabel
-        .attr("fill", (d) => {
-          if (d.data.classname == "dedicated") {
-            return "#387c85";
-          }
-          return "#f29ebe";
-        })
-        .attr("transform", (d) => {
-          return `translate(${arcLabel().centroid(d)})`;
-        })
-        .transition()
-        .duration(500)
-        .text((d) => (d.value > 10 ? d.value : ""));
-
-      newPath
-        .on("mouseover", onTooltipMouseOver)
-        .on("mousemove", onTooltipMouseMove)
-        .on("mouseout", onTooltipMouseOut);
-
-      isDonutShowed = true;
-    }
+    futureGapLabel
+      .attr("fill", (d) => {
+        if (d.data.classname == "dedicated") {
+          return "#387c85";
+        }
+        return "#f29ebe";
+      })
+      .attr("dy", "0.35em")
+      .attr("transform", (d) => {
+        return `translate(${arcLabel().centroid(d)})`;
+      })
+      .transition()
+      .duration(500)
+      .text((d) => (d.value > 15 ? d.value : ""));
   }
 
   function onTooltipMouseOver(d) {
@@ -188,11 +297,29 @@ function drawDiagram(valueField, data) {
         return `${d3.event.layerY + 10}px`;
       });
 
-    clearTimeout(showDonutTimeout);
+    if (!isLowerGapShowed) {
+      clearTimeout(showLowerGapTimeout);
+    }
+    if (
+      !isFutureGapShowed &&
+      isLowerGapShowed &&
+      d.value == d.data["future lower"]
+    ) {
+      clearTimeout(showFutureGapTimeout);
+    }
   }
 
   function onTooltipMouseOut(d) {
-    showDonutTimeout = setTimeout(showDonut, ANIMATION_TIMEOUT);
+    if (!isLowerGapShowed) {
+      showLowerGapTimeout = setTimeout(showLowerGap, ANIMATION_TIMEOUT);
+    }
+    if (
+      !isFutureGapShowed &&
+      isLowerGapShowed &&
+      d.value == d.data["future lower"]
+    ) {
+      showFutureGapTimeout = setTimeout(showFutureGap, ANIMATION_TIMEOUT);
+    }
     tooltip.transition().duration(500).style("opacity", 0);
   }
 }

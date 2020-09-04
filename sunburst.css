@@ -50,6 +50,8 @@ label {
 text {
   font: 20px Ahamono;
   text-anchor: middle;
+  pointer-events: none;
+  user-select: none;
 }
 
 path:not([fill-opacity="0"]) {
