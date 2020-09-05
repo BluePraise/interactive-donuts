@@ -48,6 +48,15 @@ function drawDiagram(valueField, data) {
     .append("g")
     .attr("transform", `translate(${width / 2},${width / 2})`);
 
+  const text = g
+    .append("text")
+    .classed("caption", true)
+    .attr("transform", `translate(0,${width / 1.8})`);
+
+  text.html(
+    `Estimated global biodiversity finance <tspan x="0" dy="1.5em">(<tspan fill="#387c85">Positive flows</tspan> (billion $) in 2030)</tspan>`
+  );
+
   const path = g
     .append("g")
     .selectAll("path")
@@ -183,6 +192,10 @@ function drawDiagram(valueField, data) {
       hideDonutTimeout = setTimeout(hideDonut, ANIMATION_TIMEOUT);
 
       isDonutShowed = true;
+
+      text.html(
+        `<tspan fill="#387c85">Positive flows</tspan> minus <tspan fill="#f29ebe">harmful subsidies</tspan> (billion $) in 2030`
+      );
     }
   }
 
@@ -193,9 +206,19 @@ function drawDiagram(valueField, data) {
       donutPath.transition().duration(750).attr("fill-opacity", 0);
 
       donutLabel.transition().duration(750).attr("fill-opacity", 0);
+      label.filter((d) => d.value < 20).attr("fill-opacity", 0);
       donutPath.on("mouseover", null).on("mouseout", null);
 
       isDonutHidden = true;
+
+      text
+        .transition()
+        .duration(750)
+        .attr("transform", `translate(0, ${width / 2.5})`);
+
+      text.html(
+        `Remaining <tspan fill="#387c85">positive finance flows</tspan> (billion $) in 2030`
+      );
     }
   }
 

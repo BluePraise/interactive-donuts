@@ -46,10 +46,19 @@ body {
 label {
   font-family: Ahamono;
 }
-
 text {
   font: 20px Ahamono;
   text-anchor: middle;
+}
+
+text:not(.caption) {
+  pointer-events: none;
+  user-select: none;
+}
+
+text.caption {
+  font-size: 16px;
+  max-width: 100px;
 }
 
 path:not([fill-opacity="0"]) {
