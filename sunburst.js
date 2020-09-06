@@ -118,11 +118,9 @@ function drawDiagram(valueField, data, cb) {
     .on("mousemove", function (d) {
       tooltip
         .style("left", () => {
-          // let left = arc.centroid(d)[0];
           return `${d3.event.layerX + 10}px`;
         })
         .style("top", () => {
-          // let top = arc.centroid(d)[1];
           return `${d3.event.layerY + 10}px`;
         });
       clearTimeout(showTotalTimeout);

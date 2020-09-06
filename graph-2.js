@@ -26,17 +26,21 @@ function drawDiagram(valueField, data) {
   const pie = (val) =>
     d3
       .pie()
-      .sort(null)
       .padAngle(0.005)
       .value((d) => {
         return d[val];
-      });
+      })
+      .sort(null)
+      .sortValues((a, b) => b - a);
 
   const arc = d3.arc().innerRadius(0.5).outerRadius(arcOuterRadius);
 
   const gapArc = d3.arc().innerRadius(0.8).outerRadius(arcOuterRadius);
 
-  const color = d3.scaleOrdinal(["#387c85", "#f29ebe"]);
+  const color = d3.scaleOrdinal(
+    ["mainstreaming", "dedicated"],
+    ["#387c85", "#f29ebe"]
+  );
 
   const svg = d3
     .select("#partitionSVG")
@@ -56,10 +60,12 @@ function drawDiagram(valueField, data) {
       `Estimated <tspan fill='#387c85'>global biodiversity finance</tspan><tspan x="0" dy="1.5em"> (billion $) in 2019</tspan>`
     );
 
-  const lowerData = pie(valueField)(data.children.slice(0, -1));
-  const lowerGapData = pie(valueField)(data.children);
-  const futureData = pie("future lower")(data.children.slice(0, -1));
-  const futureGapData = pie("future lower")(data.children);
+  const sort = (a, b) => b.value - a.value;
+
+  const lowerData = pie(valueField)(data.children.slice(0, -1)).sort(sort);
+  const lowerGapData = pie(valueField)(data.children).sort(sort);
+  const futureData = pie("future lower")(data.children.slice(0, -1)).sort(sort);
+  const futureGapData = pie("future lower")(data.children).sort(sort);
 
   const futureG = svg
     .append("g")
@@ -71,7 +77,7 @@ function drawDiagram(valueField, data) {
     .data(lowerData)
     .join("path")
     .attr("fill", (d) => {
-      return color();
+      return color(d.data.classname);
     });
 
   lowerPath
@@ -93,13 +99,15 @@ function drawDiagram(valueField, data) {
     .attr("text-anchor", "middle")
     .selectAll("text")
     .data(lowerData)
-    .join("text");
-
-  lowerLabel
-    .attr("fill", (d) => color(1))
+    .join("text")
+    .attr("fill", (d) =>
+      d.data.classname == "dedicated" ? "#387c85" : "#f29ebe"
+    )
     .attr("transform", (d) => {
       return `translate(${arcLabel().centroid(d)})`;
-    })
+    });
+
+  lowerLabel
     .transition()
     .delay(function (d, i) {
       return i * 450;
@@ -122,25 +130,64 @@ function drawDiagram(valueField, data) {
   function showLowerGap(p) {
     isLowerGapShowed = true;
 
+    const t = g.transition().duration(750);
+
     const lowerGapPath = g
       .select("g")
       .selectAll("path")
       .data(lowerGapData)
-      .join("path")
-      .attr("fill", (d) => {
-        return color(d.data.classname);
-      });
+      .join(
+        (enter) =>
+          enter
+            .append("path")
+            .each((d) => {
+              d.startAngleOld = d.startAngle;
+              return (d.startAngle *= 0.95);
+            })
+            .attr("d", (d) => {
+              console.log(d.startAngle, d.startAngleOld);
+              return arc(d);
+            })
+            .call((enter) =>
+              enter
+                .transition(t)
+                .each((d) => (d.startAngle = d.startAngleOld))
+                .attr("d", arc)
+                .attr("fill", (d) => {
+                  return color(d.data.classname);
+                })
+            ),
+        (update) =>
+          update
+            .each((d) => {
+              d.startAngleOld = d.startAngle;
+              return (d.startAngle *= 0.99);
+            })
+            .attr("d", arc)
+            .call((update) =>
+              update
+                .each((d) => (d.startAngle = d.startAngleOld))
+                .transition(t)
+                .attr("d", arc)
+                .attr("fill", (d) => {
+                  return color(d.data.classname);
+                })
+            )
+      );
 
-    lowerGapPath
-      .transition()
-      .duration(750)
-      .attrTween("d", function (d) {
-        var i = d3.interpolate(d.startAngle, d.endAngle);
-        return function (t) {
-          d.endAngle = i(t);
-          return gapArc(d);
-        };
-      });
+    // lowerGapPath.filter((d) => d.value < 10).attr("d", arc);
+
+    // lowerGapPath
+    //   .transition()
+    //   .duration(750)
+    //   .attr("d", arc)
+    //   .attrTween("d", function (d) {
+    //     var i = d3.interpolate(d.startAngle, d.endAngle - 2);
+    //     return function (t) {
+    //       d.endAngle = i(t);
+    //       return arc(d);
+    //     };
+    //   });
 
     g.select("text")
       .classed("caption", true)
@@ -163,11 +210,11 @@ function drawDiagram(valueField, data) {
         return "#f29ebe";
       })
       .attr("dy", "0.35em")
+      .transition()
+      .duration(750)
       .attr("transform", (d) => {
         return `translate(${arcLabel().centroid(d)})`;
       })
-      .transition()
-      .duration(500)
       .text((d) => (d.value > 10 ? d.value : ""));
 
     futureG
@@ -285,7 +332,7 @@ function drawDiagram(valueField, data) {
       .text((d) => (d.value > 15 ? d.value : ""));
   }
 
-  function onTooltipMouseOver(d) {
+  function onTooltipMouseOver(event, d) {
     tooltip.transition().duration(200).style("opacity", 1);
     tooltip.html(`<p>${d.data.name}<br>${d.value}</p>`);
     if (tooltip.classed("dedicated") && d.data.classname !== "dedicated") {
@@ -302,13 +349,13 @@ function drawDiagram(valueField, data) {
     }
   }
 
-  function onTooltipMouseMove(d) {
+  function onTooltipMouseMove(event, d) {
     tooltip
       .style("left", () => {
-        return `${d3.event.layerX + 10}px`;
+        return `${event.layerX + 10}px`;
       })
       .style("top", () => {
-        return `${d3.event.layerY + 10}px`;
+        return `${event.layerY + 10}px`;
       });
 
     if (!isLowerGapShowed) {
@@ -323,7 +370,7 @@ function drawDiagram(valueField, data) {
     }
   }
 
-  function onTooltipMouseOut(d) {
+  function onTooltipMouseOut(event, d) {
     if (!isLowerGapShowed) {
       showLowerGapTimeout = setTimeout(showLowerGap, ANIMATION_TIMEOUT);
     }
